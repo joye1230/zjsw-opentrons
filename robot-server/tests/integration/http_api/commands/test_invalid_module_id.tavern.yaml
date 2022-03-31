@@ -1,0 +1,45 @@
+test_name: magneticModuleV1 standalone commands
+
+marks:
+  - usefixtures:
+      - run_server
+
+stages:
+  - name: Delete all runs # Ensure there is no active run
+    request:
+      url: '{host:s}:{port:d}/runs'
+      method: GET
+    response:
+      status_code: 200
+      verify_response_with:
+        - function: 'tests.integration.fixtures:delete_all_runs'
+          extra_kwargs:
+            host: '{host:s}'
+            port: '{port:d}'
+  - name: issue magDeck engage Command with bad module id
+    request:
+      url: '{host:s}:{port:d}/commands'
+      method: POST
+      params:
+        waitUntilComplete: true
+      json:
+        data:
+          commandType: "magneticModule/engageMagnet"
+          params:
+            moduleId: garbage
+            engageHeight: 10
+    response:
+      strict:
+        - json:off
+      status_code: 201
+      json:
+        data:
+          commandType: magneticModule/engageMagnet
+          status: failed
+          params:
+            moduleId: garbage
+            engageHeight: 10
+          error:
+            errorType: ModuleNotLoadedError
+            detail: Module garbage not found.
+
