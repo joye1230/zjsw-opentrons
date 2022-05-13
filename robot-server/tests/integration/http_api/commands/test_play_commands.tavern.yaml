@@ -1,0 +1,55 @@
+test_name: Heater Shaker standalone command
+
+
+stages:
+  - name: Get the TC id
+    request:
+      url: '{host:s}:{port:d}/modules'
+      method: GET
+    response:
+      status_code: 200
+      save:
+        $ext:
+          function: 'tests.integration.fixtures:get_module_id'
+          extra_kwargs:
+            module_model: thermocyclerModuleV1
+  - name: Get the Temp Module id
+    request:
+      url: '{host:s}:{port:d}/modules'
+      method: GET
+    response:
+      status_code: 200
+      save:
+        $ext:
+          function: 'tests.integration.fixtures:get_module_id'
+          extra_kwargs:
+            module_model: temperatureModuleV2
+  - name: Get magDeck id
+    request:
+      url: '{host:s}:{port:d}/modules'
+      method: GET
+    response:
+      status_code: 200
+      save:
+        $ext:
+          function: 'tests.integration.fixtures:get_module_id'
+          extra_kwargs:
+            module_model: magneticModuleV1
+  - name: issue TC heaterShakerModule/deactivateHeater Command
+    request:
+      url: '{host:s}:{port:d}/commands'
+      method: POST
+      params:
+        waitUntilComplete: true
+      json:
+        data:
+          commandType: 'thermocycler/deactivateLid'
+          params:
+            moduleId: '{thermocyclerModuleV1_id}'
+    response:
+      strict:
+        - json:off
+      status_code: 201
+      json:
+        data:
+          status: succeeded
