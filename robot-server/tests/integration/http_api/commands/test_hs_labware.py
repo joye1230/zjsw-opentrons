@@ -15,6 +15,8 @@ async def print_response(response: Response) -> None:
     print(formatted_response_body)
     with open("responses.log", "a") as log:
         log.write(formatted_response_body)
+
+
 async def test_things():
     async with RobotClient.make(
         host="http://192.168.50.89", port=31950, version="*"
@@ -22,10 +24,10 @@ async def test_things():
         await robot_client.wait_until_alive()
         modules = await robot_client.get_modules()
         await print_response(modules)
-        hs_id = [
+        tc_ids = [
             module["id"] for module in modules.json()["data"] if module["moduleModel"] == "thermocyclerModuleV1"
         ]
-        print(hs_id[0])
+        print(tc_ids[0])
         run = await robot_client.post_run()
         await print_response(run)
         run_id = run.json()["data"]["id"]
