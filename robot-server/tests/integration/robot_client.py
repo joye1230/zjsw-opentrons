@@ -150,11 +150,17 @@ class RobotClient:
         response.raise_for_status()
         return response
 
-    async def post_run(self, protocol_id: Optional[str]) -> Response:
-        response = await self.httpx_client.post(
-            url=f"{self.base_url}/runs",
-            json={"data": {"protocolId": protocol_id}},
-        )
+    async def post_run(self, protocol_id: Optional[str] = None) -> Response:
+        if protocol_id:
+            response = await self.httpx_client.post(
+                url=f"{self.base_url}/runs",
+                json={"data": {"protocolId": protocol_id}},
+            )
+        else:
+            response = await self.httpx_client.post(
+                url=f"{self.base_url}/runs",
+                json={"data": {}},
+            )
         response.raise_for_status()
         return response
 
@@ -166,5 +172,11 @@ class RobotClient:
     async def delete_run(self, run_id: str) -> Response:
         """DELETE /runs/{run_id}."""
         response = await self.httpx_client.delete(f"{self.base_url}/runs/{run_id}")
+        response.raise_for_status()
+        return response
+
+    async def get_modules(self) -> Response:
+        """GET /modules."""
+        response = await self.httpx_client.get(url=f"{self.base_url}/modules")
         response.raise_for_status()
         return response
