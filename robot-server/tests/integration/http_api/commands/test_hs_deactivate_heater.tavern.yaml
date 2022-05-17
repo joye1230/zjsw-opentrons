@@ -1,21 +1,18 @@
 test_name: Heater Shaker standalone command
 
-marks:
-  - usefixtures:
-      - run_server
 
 stages:
-  - name: Delete all runs # Ensure there is no active run
-    request:
-      url: '{host:s}:{port:d}/runs'
-      method: GET
-    response:
-      status_code: 200
-      verify_response_with:
-        - function: 'tests.integration.fixtures:delete_all_runs'
-          extra_kwargs:
-            host: '{host:s}'
-            port: '{port:d}'
+  # - name: Delete all runs # Ensure there is no active run
+  #   request:
+  #     url: '{host:s}:{port:d}/runs'
+  #     method: GET
+  #   response:
+  #     status_code: 200
+  #     verify_response_with:
+  #       - function: 'tests.integration.fixtures:delete_all_runs'
+  #         extra_kwargs:
+  #           host: '{host:s}'
+  #           port: '{port:d}'
   - name: Get the HS id
     request:
       url: '{host:s}:{port:d}/modules'
