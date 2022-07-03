@@ -1,15 +1,14 @@
-"""For pytest."""
-import logging
+"""Pytest setup."""
 import os
 from pathlib import Path
 from typing import Dict, List
+
 import pytest
-from _pytest.config.argparsing import Parser
-from dotenv import load_dotenv, find_dotenv
-from rich.console import Console
+from dotenv import find_dotenv, load_dotenv
 from rich import pretty, traceback
+from rich.console import Console
 from selenium.webdriver.chrome.options import Options
-from src.resources.ot_robot5dot1 import OtRobot
+
 from src.resources.robot_data import ROBOT_MAPPING, RobotDataType
 
 collect_ignore_glob = ["files/**/*.py"]
@@ -24,8 +23,23 @@ if find_dotenv():
     load_dotenv(find_dotenv())
 
 
+def pytest_collection_modifyitems(items):  # type: ignore # noqa: ANN201,ANN001
+    """Order tests."""
+    # When running all tests calibrate the robot first.
+    # Most other tests require this.
+    MODULE_ORDER = ["tests.calibrate_test"]
+    module_mapping = {item: item.module.__name__ for item in items}
+    sorted_items = items.copy()
+    # Iteratively move tests of each module to the end of the test queue
+    for module in MODULE_ORDER:
+        sorted_items = [it for it in sorted_items if module_mapping[it] == module] + [
+            it for it in sorted_items if module_mapping[it] != module
+        ]
+    items[:] = sorted_items
+
+
 def _chrome_options() -> Options:
-    """Standard Chrome options."""
+    """Chrome options for setup."""
     options = Options()
     executable_path = os.getenv("EXECUTABLE_PATH")
     assert (
@@ -93,13 +107,15 @@ def test_labwares() -> Dict[str, Path]:
 
 @pytest.fixture(scope="session")
 def console() -> Console:
+    """Rich console for output."""
     return _console
 
 
 @pytest.fixture(scope="session")
 def robots() -> List[RobotDataType]:
-    # read from .env for what robots to load for a test
-    robots = os.getenv("ROBOTS").lower().split(",")
+    """Robot data."""
+    # provide all robot data to the tests
+    robots = ["dev", "kansas", "emulated_alpha"]
     result = []
     for robot in robots:
         robot_type = ROBOT_MAPPING[robot]
