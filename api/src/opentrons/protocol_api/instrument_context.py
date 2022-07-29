@@ -189,8 +189,8 @@ class InstrumentContext(publisher.CommandPublisher):
                 "dispense) must previously have been called so the robot "
                 "knows where it is."
             )
-        if self.api_version >= APIVersion(2, 11):
-            instrument.validate_can_aspirate(dest)
+        #if self.api_version >= APIVersion(2, 11):
+        #    instrument.validate_can_aspirate(dest)
 
         if self.current_volume == 0:
             # Make sure we're at the top of the labware and clear of any
@@ -212,7 +212,7 @@ class InstrumentContext(publisher.CommandPublisher):
                         "cause over aspiration if the previous command is a "
                         "blow_out."
                     )
-                self._implementation.prepare_for_aspirate()
+                #self._implementation.prepare_for_aspirate()
             self.move_to(dest, publish=False)
         elif dest != self._ctx.location_cache:
             self.move_to(dest, publish=False)

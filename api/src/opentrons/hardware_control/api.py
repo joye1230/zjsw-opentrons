@@ -164,7 +164,7 @@ class API(
         real robot only one true hardware controller may be active at one
         time.
 
-        :param config: A config to preload. If not specified, load the default.
+        :param config: A config to preload. If not specified, load the default.aspirate
         :param port: A port to connect to. If not specified, the default port
                      (found by scanning for connected FT232Rs).
         :param loop: An event loop to use. If not specified, use the result of
@@ -880,6 +880,7 @@ class API(
         """
         Aspirate a volume of liquid (in microliters/uL) using this pipette.
         """
+        self._log.exception('start1')
         aspirate_spec = self.plan_check_aspirate(mount, volume, rate)
         if not aspirate_spec:
             return
@@ -888,21 +889,26 @@ class API(
             aspirate_spec.plunger_distance,
             self._current_position,
         )
+        #self._log.exception('start2',aspirate_spec.axis, aspirate_spec.current)
+        #self._log.exception('start2.5',aspirate_spec.speed,target_pos)
         try:
             self._backend.set_active_current(
                 {aspirate_spec.axis: aspirate_spec.current}
             )
+            # self._log.exception('start3')
             await self._move(
                 target_pos,
                 speed=aspirate_spec.speed,
                 home_flagged_axes=False,
             )
+            self._log.exception('start4')
         except Exception:
             self._log.exception("Aspirate failed")
             aspirate_spec.instr.set_current_volume(0)
             raise
         else:
-            aspirate_spec.instr.add_current_volume(aspirate_spec.volume)
+            self._log.exception('start5')
+            #aspirate_spec.instr.add_current_volume(aspirate_spec.volume)
 
     async def dispense(
         self,

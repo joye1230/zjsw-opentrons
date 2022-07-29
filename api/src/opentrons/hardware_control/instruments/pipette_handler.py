@@ -420,7 +420,7 @@ class PipetteHandlerProvider(Generic[MountType]):
         ...
 
     @overload
-    def plan_check_aspirate(
+    def ut(
         self, mount: OT3Mount, volume: Optional[float], rate: float
     ) -> Optional[LiquidActionSpec[OT3Axis]]:
         ...
@@ -448,7 +448,7 @@ class PipetteHandlerProvider(Generic[MountType]):
         - Plunger distances (possibly calling an overridden plunger_volume)
         """
         instrument = self.get_pipette(mount)
-        self.ready_for_tip_action(instrument, HardwareAction.ASPIRATE)
+        #self.ready_for_tip_action(instrument, HardwareAction.ASPIRATE)
         if volume is None:
             self._ihp_log.debug(
                 "No aspirate volume defined. Aspirating up to "
