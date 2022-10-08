@@ -657,7 +657,7 @@ class API(
             top_types.Point(*self._config.left_mount_offset),
             top_types.Point(0, 0, 0),
         )
-
+        #self._log.exception(top_types.Well)
         await self._cache_and_maybe_retract_mount(mount)
         await self._move(target_position, speed=speed, max_speeds=max_speeds)
 
@@ -919,10 +919,12 @@ class API(
         """
         Dispense a volume of liquid in microliters(uL) using this pipette.
         """
-
+        print("test1.1--------")
         dispense_spec = self.plan_check_dispense(mount, volume, rate)
         if not dispense_spec:
+            print("test1.2--------")
             return
+        print("test1.3--------")
         target_pos = target_position_from_plunger(
             mount,
             dispense_spec.plunger_distance,

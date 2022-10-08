@@ -162,7 +162,7 @@ class InstrumentContextImplementation(AbstractInstrument):
         from_loc = types.Location(
             hardware.gantry_position(self._mount, critical_point=cp_override), from_lw
         )
-
+        print("test0--------",from_loc.point,location.point)
         instr_max_height = hardware.get_instrument_max_height(self._mount)
         moves = planning.plan_moves(
             from_loc,
@@ -172,9 +172,10 @@ class InstrumentContextImplementation(AbstractInstrument):
             force_direct=force_direct,
             minimum_z_height=minimum_z_height,
         )
-
+        print("test--------")
         try:
             for move in moves:
+                print("test2--------",move[0],move[1])
                 hardware.move_to(
                     self._mount,
                     move[0],

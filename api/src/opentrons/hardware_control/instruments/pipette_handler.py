@@ -523,9 +523,9 @@ class PipetteHandlerProvider(Generic[MountType]):
         Calculate
         - Plunger distances (possibly calling an overridden plunger_volume)
         """
-
+        print("3.1")
         instrument = self.get_pipette(mount)
-        self.ready_for_tip_action(instrument, HardwareAction.DISPENSE)
+        #self.ready_for_tip_action(instrument, HardwareAction.DISPENSE)
 
         if volume is None:
             disp_vol = instrument.current_volume
@@ -538,16 +538,17 @@ class PipetteHandlerProvider(Generic[MountType]):
 
         # Ensure we don't dispense more than the current volume
         disp_vol = min(instrument.current_volume, disp_vol)
-
-        if disp_vol == 0:
-            return None
-
+        print("3.2")
+        # if disp_vol == 0:
+        #     return None
+        print("3.3")
         dist = self.plunger_position(
             instrument, instrument.current_volume - disp_vol, "dispense"
         )
         speed = self.plunger_speed(
             instrument, instrument.dispense_flow_rate * rate, "dispense"
         )
+        print("3.5")
         if isinstance(mount, top_types.Mount):
             return LiquidActionSpec(
                 axis=Axis.of_plunger(mount),

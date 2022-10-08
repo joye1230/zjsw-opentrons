@@ -192,30 +192,30 @@ class InstrumentContext(publisher.CommandPublisher):
         #if self.api_version >= APIVersion(2, 11):
         #    instrument.validate_can_aspirate(dest)
 
-        if self.current_volume == 0:
-            # Make sure we're at the top of the labware and clear of any
-            # liquid to prepare the pipette for aspiration
-
-            if (
-                self.api_version < APIVersion(2, 3)
-                or not self._implementation.is_ready_to_aspirate()
-            ):
-                if dest.labware.is_well:
-                    self.move_to(dest.labware.as_well().top(), publish=False)
-                else:
-                    # TODO(seth,2019/7/29): This should be a warning exposed
-                    #  via rpc to the runapp
-                    logger.warning(
-                        "When aspirate is called on something other than a "
-                        "well relative position, we can't move to the top of"
-                        " the well to prepare for aspiration. This might "
-                        "cause over aspiration if the previous command is a "
-                        "blow_out."
-                    )
-                #self._implementation.prepare_for_aspirate()
-            self.move_to(dest, publish=False)
-        elif dest != self._ctx.location_cache:
-            self.move_to(dest, publish=False)
+        # if self.current_volume == 0:
+        #     # Make sure we're at the top of the labware and clear of any
+        #     # liquid to prepare the pipette for aspiration
+        #
+        #     if (
+        #         self.api_version < APIVersion(2, 3)
+        #         or not self._implementation.is_ready_to_aspirate()
+        #     ):
+        #         if dest.labware.is_well:
+        #             self.move_to(dest.labware.as_well().top(), publish=False)
+        #         else:
+        #             # TODO(seth,2019/7/29): This should be a warning exposed
+        #             #  via rpc to the runapp
+        #             logger.warning(
+        #                 "When aspirate is called on something other than a "
+        #                 "well relative position, we can't move to the top of"
+        #                 " the well to prepare for aspiration. This might "
+        #                 "cause over aspiration if the previous command is a "
+        #                 "blow_out."
+        #             )
+        #         #self._implementation.prepare_for_aspirate()
+        #     self.move_to(dest, publish=False)
+        # elif dest != self._ctx.location_cache:
+        #     self.move_to(dest, publish=False)
 
         c_vol = self._implementation.get_available_volume() if not volume else volume
 
@@ -308,8 +308,8 @@ class InstrumentContext(publisher.CommandPublisher):
                 "aspirate) must previously have been called so the robot "
                 "knows where it is."
             )
-        if self.api_version >= APIVersion(2, 11):
-            instrument.validate_can_dispense(loc)
+        # if self.api_version >= APIVersion(2, 11):
+        #     instrument.validate_can_dispense(loc)
 
         c_vol = self.current_volume if not volume else volume
 
@@ -1243,6 +1243,7 @@ class InstrumentContext(publisher.CommandPublisher):
         :param publish: Whether a call to this function should publish to the
                         runlog or not.
         """
+
         from_loc = self._ctx.location_cache
         if not from_loc:
             from_loc = types.Location(types.Point(0, 0, 0), LabwareLike(None))
@@ -1488,3 +1489,57 @@ class InstrumentContext(publisher.CommandPublisher):
     def _tip_length_for(self, tiprack: labware.Labware) -> float:
         """Get the tip length, including overlap, for a tip from this rack"""
         return instrument.tip_length_for(self.hw_pipette, tiprack)
+
+    @requires_version(2, 0)
+    def zj_move_to(
+            self,
+            point: types.Point,
+            force_direct: bool = False,
+            minimum_z_height: Optional[float] = None,
+            speed: Optional[float] = None,
+            publish: bool = True,
+    ) -> InstrumentContext:
+        """Move the instrument.
+
+        :param location: The location to move to.
+        :type location: :py:class:`.types.Location`
+        :param force_direct: If set to true, move directly to destination
+                             without arc motion.
+        :param minimum_z_height: When specified, this Z margin is able to raise
+                                 (but never lower) the mid-arc height.
+        :param speed: The speed at which to move. By default,
+                      :py:attr:`InstrumentContext.default_speed`. This controls
+                      the straight linear speed of the motion; to limit
+                      individual axis speeds, you can use
+                      :py:obj:`.ProtocolContext.max_speeds`.
+        :param publish: Whether a call to this function should publish to the
+                        runlog or not.
+        """
+        location = types.Location(point, LabwareLike(None))
+        from_loc = self._ctx.location_cache
+        if not from_loc:
+            from_loc = types.Location(types.Point(0, 0, 0), LabwareLike(None))
+
+        for mod in self._ctx._modules:
+            if isinstance(mod, ThermocyclerContext):
+                mod.flag_unsafe_move(to_loc=location, from_loc=from_loc)
+
+        publish_ctx = nullcontext()
+
+        if publish:
+            publish_ctx = publisher.publish_context(
+                broker=self.broker,
+                command=cmds.move_to(
+                    instrument=self,
+                    location=location or self._ctx.location_cache,  # type: ignore[arg-type]
+                ),
+            )
+        with publish_ctx:
+            self._implementation.move_to(
+                location=location,
+                force_direct=force_direct,
+                minimum_z_height=minimum_z_height,
+                speed=speed,
+            )
+
+        return self
