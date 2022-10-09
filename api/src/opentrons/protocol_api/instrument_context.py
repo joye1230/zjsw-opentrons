@@ -635,7 +635,7 @@ class InstrumentContext(publisher.CommandPublisher):
         return self
 
     @requires_version(2, 0)
-    def pick_up_tip(
+    def Fpick_up_tip(
         self,
         location: Optional[Union[types.Location, labware.Well]] = None,
         presses: Optional[int] = None,
@@ -878,7 +878,7 @@ class InstrumentContext(publisher.CommandPublisher):
             broker=self.broker,
             command=cmds.drop_tip(instrument=self, location=target),
         ):
-            self.move_to(target, publish=False)
+            #self.move_to(target, publish=False)
             self._implementation.drop_tip(home_after=home_after)
 
         if (

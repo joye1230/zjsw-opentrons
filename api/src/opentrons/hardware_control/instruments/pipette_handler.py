@@ -384,8 +384,8 @@ class PipetteHandlerProvider(Generic[MountType]):
             return top_types.Point(0, 0, 30)
 
     def ready_for_tip_action(self, target: Pipette, action: HardwareAction) -> None:
-        if not target.has_tip:
-            raise NoTipAttachedError(f"Cannot perform {action} without a tip attached")
+        # if not target.has_tip:
+        #     raise NoTipAttachedError(f"Cannot perform {action} without a tip attached")
         if (
             action == HardwareAction.ASPIRATE
             and target.current_volume == 0
@@ -819,7 +819,7 @@ class PipetteHandlerProvider(Generic[MountType]):
         def _remove_tips() -> None:
             instrument.set_current_volume(0)
             instrument.current_tiprack_diameter = 0.0
-            instrument.remove_tip()
+            #instrument.remove_tip()
 
         if isinstance(mount, top_types.Mount):
             seq_builder_ot2 = self._droptip_sequence_builder(

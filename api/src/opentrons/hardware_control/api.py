@@ -1018,7 +1018,6 @@ class API(
 
     async def drop_tip(self, mount: top_types.Mount, home_after: bool = True) -> None:
         """Drop tip at the current location."""
-
         spec, _remove = self.plan_check_drop_tip(mount, home_after)
 
         for move in spec.drop_moves:
