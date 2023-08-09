@@ -97,7 +97,7 @@ class InstrumentContextSimulation(AbstractInstrument):
             self._pipette_dict["ready_to_aspirate"] = True
 
     def drop_tip(self, home_after: bool) -> None:
-        self._raise_if_no_tip(HardwareAction.DROPTIP.name)
+        #self._raise_if_no_tip(HardwareAction.DROPTIP.name)
         self._pipette_dict["has_tip"] = False
         self._pipette_dict["tip_length"] = 0.0
         self._update_volume(0)

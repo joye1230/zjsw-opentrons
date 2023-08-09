@@ -650,8 +650,8 @@ class PipetteHandlerProvider(Generic[MountType]):
 
         # Prechecks: ready for pickup tip and press/increment are valid
         instrument = self.get_pipette(mount)
-        if instrument.has_tip:
-            raise TipAttachedError("Cannot pick up tip with a tip attached")
+        # if instrument.has_tip:
+        #     raise TipAttachedError("Cannot pick up tip with a tip attached")
         self._ihp_log.debug(f"Picking up tip on {mount.name}")
 
         if presses is None or presses < 0:
@@ -679,7 +679,7 @@ class PipetteHandlerProvider(Generic[MountType]):
                 yield (press_dist, backup_dist)
 
         def add_tip_to_instr() -> None:
-            instrument.add_tip(tip_length=tip_length)
+            #instrument.add_tip(tip_length=tip_length)
             instrument.set_current_volume(0)
 
         if isinstance(mount, top_types.Mount):

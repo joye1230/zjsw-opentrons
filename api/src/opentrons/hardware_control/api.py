@@ -880,7 +880,6 @@ class API(
         """
         Aspirate a volume of liquid (in microliters/uL) using this pipette.
         """
-        self._log.exception('start1')
         aspirate_spec = self.plan_check_aspirate(mount, volume, rate)
         if not aspirate_spec:
             return
@@ -901,13 +900,12 @@ class API(
                 speed=aspirate_spec.speed,
                 home_flagged_axes=False,
             )
-            self._log.exception('start4')
         except Exception:
             self._log.exception("Aspirate failed")
             aspirate_spec.instr.set_current_volume(0)
             raise
-        else:
-            self._log.exception('start5')
+        # else:
+            # self._log.exception('start5')
             #aspirate_spec.instr.add_current_volume(aspirate_spec.volume)
 
     async def dispense(

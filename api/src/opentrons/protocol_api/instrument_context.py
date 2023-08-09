@@ -169,7 +169,6 @@ class InstrumentContext(publisher.CommandPublisher):
                 volume, location if location else "current position", rate
             )
         )
-
         if isinstance(location, labware.Well):
             dest = location.bottom().move(
                 types.Point(0, 0, self.well_bottom_clearance.aspirate)
@@ -375,8 +374,8 @@ class InstrumentContext(publisher.CommandPublisher):
                 volume, repetitions, location if location else "current position", rate
             )
         )
-        if not self._implementation.has_tip():
-            raise hc.NoTipAttachedError("Pipette has no tip. Aborting mix()")
+        # if not self._implementation.has_tip():
+        #     raise hc.NoTipAttachedError("Pipette has no tip. Aborting mix()")
 
         c_vol = self._implementation.get_available_volume() if not volume else volume
 
@@ -635,7 +634,7 @@ class InstrumentContext(publisher.CommandPublisher):
         return self
 
     @requires_version(2, 0)
-    def Fpick_up_tip(
+    def pick_up_tip(
         self,
         location: Optional[Union[types.Location, labware.Well]] = None,
         presses: Optional[int] = None,
@@ -750,12 +749,12 @@ class InstrumentContext(publisher.CommandPublisher):
                 f"prep_after is only available in API {prep_after_added_in} and newer,"
                 f" but you are using API {self._api_version}."
             )
-
+        print(prep_after)
         with publisher.publish_context(
             broker=self.broker,
             command=cmds.pick_up_tip(instrument=self, location=target_well),
         ):
-            self.move_to(move_to_location, publish=False)
+            #self.move_to(move_to_location, publish=False)
             self._implementation.pick_up_tip(
                 well=target_well._impl,
                 tip_length=self._tip_length_for(tiprack),
@@ -765,7 +764,7 @@ class InstrumentContext(publisher.CommandPublisher):
             )
             # Note that the hardware API pick_up_tip action includes homing z after
 
-        tiprack.use_tips(target_well, self.channels)
+        #tiprack.use_tips(target_well, self.channels)
         self._last_tip_picked_up_from = target_well
 
         return self
@@ -791,6 +790,7 @@ class InstrumentContext(publisher.CommandPublisher):
               a tip, `location` can be a :py:class:`.Well`. For instance,
               if you have a tip rack in a variable called `tiprack`, you can
               drop a tip into a specific well on that tiprack with the call
+              `instr.drop_tip(tiprack.wells()[0])`. This style of call can
               `instr.drop_tip(tiprack.wells()[0])`. This style of call can
               be used to make the robot drop a tip into arbitrary labware.
             - If the position to drop the tip from as well as the
@@ -1247,7 +1247,7 @@ class InstrumentContext(publisher.CommandPublisher):
         from_loc = self._ctx.location_cache
         if not from_loc:
             from_loc = types.Location(types.Point(0, 0, 0), LabwareLike(None))
-
+        print("test-----------------1",location)
         for mod in self._ctx._modules:
             if isinstance(mod, ThermocyclerContext):
                 mod.flag_unsafe_move(to_loc=location, from_loc=from_loc)
