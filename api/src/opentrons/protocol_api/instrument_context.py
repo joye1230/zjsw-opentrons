@@ -181,13 +181,13 @@ class InstrumentContext(publisher.CommandPublisher):
             )
         elif self._ctx.location_cache:
             dest = self._ctx.location_cache
-        else:
-            raise RuntimeError(
-                "If aspirate is called without an explicit location, another"
-                " method that moves to a location (such as move_to or "
-                "dispense) must previously have been called so the robot "
-                "knows where it is."
-            )
+        #else:
+            # raise RuntimeError(
+            #     "If aspirate is called without an explicit location, another"
+            #     " method that moves to a location (such as move_to or "
+            #     "dispense) must previously have been called so the robot "
+            #     "knows where it is."
+            # )
         #if self.api_version >= APIVersion(2, 11):
         #    instrument.validate_can_aspirate(dest)
 
@@ -300,18 +300,19 @@ class InstrumentContext(publisher.CommandPublisher):
             )
         elif self._ctx.location_cache:
             loc = self._ctx.location_cache
-        else:
-            raise RuntimeError(
-                "If dispense is called without an explicit location, another"
-                " method that moves to a location (such as move_to or "
-                "aspirate) must previously have been called so the robot "
-                "knows where it is."
-            )
+        #else:
+            # raise RuntimeError(
+            #     "If dispense is called without an explicit location, another"
+            #     " method that moves to a location (such as move_to or "
+            #     "aspirate) must previously have been called so the robot "
+            #     "knows where it is."
+            # )
         # if self.api_version >= APIVersion(2, 11):
         #     instrument.validate_can_dispense(loc)
 
-        c_vol = self.current_volume if not volume else volume
-
+        #c_vol = self.current_volume if not volume else volume
+        c_vol = volume
+        #print("-----------------   dispense", c_vol)
         with publisher.publish_context(
             broker=self.broker,
             command=cmds.dispense(
@@ -321,6 +322,7 @@ class InstrumentContext(publisher.CommandPublisher):
                 rate=rate,
             ),
         ):
+
             self._implementation.dispense(volume=c_vol, rate=rate)
 
         return self
@@ -1246,7 +1248,7 @@ class InstrumentContext(publisher.CommandPublisher):
         from_loc = self._ctx.location_cache
         if not from_loc:
             from_loc = types.Location(types.Point(0, 0, 0), LabwareLike(None))
-        print("test-----------------1",location)
+        #print("test-----------------1",location)
         for mod in self._ctx._modules:
             if isinstance(mod, ThermocyclerContext):
                 mod.flag_unsafe_move(to_loc=location, from_loc=from_loc)

@@ -51,7 +51,7 @@ def dispense(
     template = "Dispensing {volume} uL into {location} at {flow} uL/sec"
     flow_rate = rate * FlowRates(instrument._implementation).dispense
     text = template.format(volume=float(volume), location=location_text, flow=flow_rate)
-
+    #print("-----------------   volume2", volume,flow_rate)
     return {
         "name": command_types.DISPENSE,
         "payload": {
